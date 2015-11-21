@@ -7,7 +7,7 @@ var db = new sqlite3.Database(path, 'OPEN_READONLY');
 function getFile(tag) {
 	var absolutePath, pathFromRoot, baseName, extension, filename;
 	var tasks = [
-		fileAbsolutePath, filePathFromRoot, fileBaseName, fileExtension, buildFilename, createCopy
+		fileAbsolutePath, filePathFromRoot, fileBaseName, fileExtension, buildFilename
 	];
 
 	// Each function below is executed in order
@@ -82,12 +82,12 @@ function getFile(tag) {
 		cb(null, filename);
 	}
 	function finish(err, results){
-		console.log(filename+' is a '+extension);
+		console.log(filename);
 	}
 
 };
 
 getFile('auriana');
-getFile('sophie');
-getFile('jane');
+//getFile('sophie');
+//getFile('jane');
 db.close();
