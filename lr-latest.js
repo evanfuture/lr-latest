@@ -1,13 +1,18 @@
 #!/usr/bin/env node
 var async    = require('async');
 var sqlite3 = require('sqlite3').verbose();
-var path = '/Volumes/Gandalf/Pictures/Lightroom/Lightroom\ Catalog.lrcat';
-var db = new sqlite3.Database(path, 'OPEN_READONLY');
+var catpath = '/Volumes/Gandalf/Pictures/Lightroom/Lightroom\ Catalog.lrcat';
+var path = require('path');
+var exec     = require('exec');
+var SmartCrop = require('smartcrop-node');
+var db = new sqlite3.Database(catpath, 'OPEN_READONLY');
+
+var userArgs = process.argv.slice(2);
 
 function getFile(tag) {
 	var absolutePath, pathFromRoot, baseName, extension, filename;
 	var tasks = [
-		fileAbsolutePath, filePathFromRoot, fileBaseName, fileExtension, buildFilename
+		fileAbsolutePath, filePathFromRoot, fileBaseName, fileExtension, buildFilename, convertImage, cropImage
 	];
 
 	// Each function below is executed in order
@@ -81,13 +86,47 @@ function getFile(tag) {
 		filename = absolutePath+pathFromRoot+baseName+'.'+extension;
 		cb(null, filename);
 	}
+
+	function convertImage(cb) {
+			exec(['convert', '-units', 'PixelsPerInch', filename, '-colorspace', 'sRGB', '-density', '72', '-format', 'JPG', '-quality', '80', '-resize', '467x467', '-auto-orient', process.cwd()+'/'+tag+'-tmp.jpg'], function(err) {
+		      if (err instanceof Error) {
+		        console.log(err);
+		        process.exit(1);
+		      }
+		      cb();
+		    });
+	}
+
+	function cropImage(cb) {
+
+		SmartCrop.crop({
+			height: 350,
+			width: 467,
+	    input: process.cwd()+'/'+tag+'-tmp.jpg',
+	    output: process.cwd()+'/'+tag+'.jpg'
+		});
+		cb();
+	}
+
 	function finish(err, results){
-		console.log(filename);
+		exec(['rm', process.cwd()+'/'+tag+'-tmp.jpg'], function(err) {
+		      if (err instanceof Error) {
+		        console.log(err);
+		        process.exit(1);
+		      }
+		      console.log(tag+' Done.');
+		    });
 	}
 
 };
 
-getFile('auriana');
+async.each(userArgs, function(tag){
+	getFile(tag);
+}, function(err){
+	if( err ) {
+      console.log(err);
+    }
+});
 //getFile('sophie');
 //getFile('jane');
 db.close();
