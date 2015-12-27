@@ -1,18 +1,25 @@
 #!/usr/bin/env node
 var async    = require('async');
 var sqlite3 = require('sqlite3').verbose();
-var catpath = '/Volumes/Gandalf/Pictures/Lightroom/Lightroom\ Catalog.lrcat';
-var path = require('path');
-var exec     = require('exec');
-var SmartCrop = require('smartcrop-node');
+var catpath = '/Users/username/Pictures/Lightroom/Lightroom\ Catalog.lrcat';
+var child_process     = require('child_process');
+// var SmartCrop = require('smartcrop-node');
 var db = new sqlite3.Database(catpath, 'OPEN_READONLY');
 
 var userArgs = process.argv.slice(2);
 
+async.each(userArgs, function(tag){
+	getFile(tag);
+}, function(err){
+	if( err ) {
+      console.log(err);
+    }
+});
+
 function getFile(tag) {
 	var absolutePath, pathFromRoot, baseName, extension, filename;
 	var tasks = [
-		fileAbsolutePath, filePathFromRoot, fileBaseName, fileExtension, buildFilename, convertImage, cropImage
+		fileAbsolutePath, filePathFromRoot, fileBaseName, fileExtension, buildFilename, /*convertImage, */ cropImage
 	];
 
 	// Each function below is executed in order
@@ -24,7 +31,7 @@ function getFile(tag) {
 		    	, function(err, row) {
 				if (err){
 					console.log(err);
-					process.exit(69);
+					process.exit(2);
 				}
 				else{
 					absolutePath = row.absolutePath;
@@ -40,7 +47,7 @@ function getFile(tag) {
 		    	, function(err, row) {
 				if (err){
 					console.log(err);
-					process.exit(69);
+					process.exit(2);
 				}
 				else{
 					pathFromRoot = row.pathFromRoot;
@@ -56,7 +63,7 @@ function getFile(tag) {
 		    	, function(err, row) {
 				if (err){
 					console.log(err);
-					process.exit(69);
+					process.exit(2);
 				}
 				else{
 					baseName = row.baseName;
@@ -72,7 +79,7 @@ function getFile(tag) {
 		    	, function(err, row) {
 				if (err){
 					console.log(err);
-					process.exit(69);
+					process.exit(2);
 				}
 				else{
 					extension = row.lc_idx_filenameExtension;
@@ -84,11 +91,11 @@ function getFile(tag) {
 
 	function buildFilename(cb) {
 		filename = absolutePath+pathFromRoot+baseName+'.'+extension;
-		cb(null, filename);
+		cb();
 	}
 
 	function convertImage(cb) {
-			exec(['convert', '-units', 'PixelsPerInch', filename, '-colorspace', 'sRGB', '-density', '72', '-format', 'JPG', '-quality', '80', '-resize', '467x467', '-auto-orient', process.cwd()+'/'+tag+'-tmp.jpg'], function(err) {
+			child_process(['convert -units PixelsPerInch ' + filename + ' -colorspace sRGB -density 72 -format JPG -quality 80 -resize 500x500 -auto-orient "' + process.cwd()+'/'+tag+'-latest.jpg"'], function(err) {
 		      if (err instanceof Error) {
 		        console.log(err);
 		        process.exit(1);
@@ -98,35 +105,21 @@ function getFile(tag) {
 	}
 
 	function cropImage(cb) {
+		// Once this is working again, change convertImage above to return tag-tmp.jpg, and the finish function below to remove the tmp file.
 
 		SmartCrop.crop({
 			height: 350,
 			width: 467,
 	    input: process.cwd()+'/'+tag+'-tmp.jpg',
-	    output: process.cwd()+'/'+tag+'.jpg'
+	    output: process.cwd()+'/'+tag+'-latest.jpg'
 		});
 		cb();
 	}
 
 	function finish(err, results){
-		exec(['rm', process.cwd()+'/'+tag+'-tmp.jpg'], function(err) {
-		      if (err instanceof Error) {
-		        console.log(err);
-		        process.exit(1);
-		      }
 		      console.log(tag+' Done.');
-		    });
 	}
 
 };
 
-async.each(userArgs, function(tag){
-	getFile(tag);
-}, function(err){
-	if( err ) {
-      console.log(err);
-    }
-});
-//getFile('sophie');
-//getFile('jane');
 db.close();

@@ -1,6 +1,6 @@
 {
   "name": "lr-latest",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "utility to pull latest tagged photos from a lightroom catalog",
   "repository": {
     "type": "git",
@@ -18,7 +18,6 @@
   },
   "dependencies": {
     "async": "^1.5.0",
-    "smartcrop-node": "^0.1.0",
     "sqlite3": "^3.1.1"
   }
 }
