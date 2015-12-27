@@ -37,23 +37,27 @@ By itself,
 lr-latest
 ````
 
-will create a fullsize jpeg copy of the latest image that has the Picked flag in the default Lightroom Catalog.
+will currently do nothing, and must be followed by a keyword from which to create a jpeg copy of the latest image that has both that keyword and the Picked flag set in the default Lightroom Catalog.
 
-Other arguments you can use, alongside their defaults:
+There are two arguments you can use, shown below alongside their defaults:
 
 **--catalog, -c** "/Users/USERNAME/Pictures/Lightroom/Lightroom\ Catalog.lrcat"
+
 *Absolute path to the Lightroom Catalog you want to use.  Useful for catalogs on external drives.*
 
-**--size, -s 500**
+**--size, -s** 500
+
 *Maximum longest edge in pixels*
 
 **--help, -h**
+
 *Shows help text.*
 
 **--ubersicht, -u**
+
 *Hidden function to allow the script to work with Ubersicht.  (uses absolute path to convert command, and puts converted images in the lr-latest widget folder).  Boolean value (true or false).*
 
-Any additional arguments without "--[arg]" parsers will be treated as keywords.  So, `lr-latest --size 500 gopher` will create a 500px wide/tall jpeg copy of the latest picked image with the keyword 'gopher', and `lr-latest --size 500 gopher marigold` will create two images, one from the keyword 'gopher' and one from the keyword 'marigold'.
+Any additional arguments without "--[arg]" parsers will be treated as the keywords.  So, `lr-latest --size 500 gopher` will create a 500px wide/tall jpeg copy of the latest picked image with the keyword 'gopher', and `lr-latest --size 500 gopher marigold` will create two images, one from the keyword 'gopher' and one from the keyword 'marigold'.
 
 Übersicht widget
 ================
