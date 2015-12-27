@@ -12,18 +12,12 @@ In order to use lr-latest, you'll have to manually install a few things.
 
 First is Homebrew, to make all the rest much easier.  You can install it by following the instructions here:
 
-Next is ImageMagick plus plugins, which you can install by running the following three commands in order:
+[Install Homebrew](http://brew.sh/)
+
+Next is ImageMagick plus plugins, which you can install by running the following command:
 
 ````javascript
-brew install libpng jpeg libtiff dcraw little-cms exiv2 freetype webp
-````
-
-````javascript
-brew install ufraw --with-exiv2
-````
-
-````javascript
-brew install imagemagick --with-webp
+brew install libpng jpeg libtiff dcraw little-cms exiv2 freetype webp ufraw --with-exiv2 imagemagick --with-webp
 ````
 
 This will let you convert whatever image you wish from the Catalog, including raw files and DNGs.
@@ -47,16 +41,23 @@ will create a fullsize jpeg copy of the latest image that has the Picked flag in
 
 Other arguments you can use, alongside their defaults:
 
---catalog "/Users/USERNAME/Pictures/Lightroom/Lightroom\ Catalog.lrcat"
+--catalog, -c "/Users/USERNAME/Pictures/Lightroom/Lightroom\ Catalog.lrcat"
   Absolute path to the Lightroom Catalog you want to use.  Useful for catalogs on external drives.
 
---size 500
+--size, -s 500
   Maximum longest edge in pixels
 
---help
+--help, -h
   Shows help text.
 
---ubersicht
-  Hidden function to allow the script to work with Ubersicht.  (uses absolute path to convert command, and puts converted images in the lr-latest widget folder)
+--ubersicht, -u
+  Hidden function to allow the script to work with Ubersicht.  (uses absolute path to convert command, and puts converted images in the lr-latest widget folder).  Boolean value (true or false).
 
 Any additional arguments without "--[arg]" parsers will be treated as keywords.  So, `lr-latest --size 500 gopher` will create a 500px wide/tall jpeg copy of the latest picked image with the keyword 'gopher', and `lr-latest --size 500 gopher marigold` will create two images, one from the keyword 'gopher' and one from the keyword 'marigold'.
+
+Übersicht widget
+================
+
+You can find a widget for using the images on your desktop with Übersicht here.
+
+[lightroom-latest.widget](#)

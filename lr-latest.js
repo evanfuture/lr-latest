@@ -1,15 +1,40 @@
 #!/usr/bin/env node
 var os = require('os');
 var async    = require('async');
-var sqlite3 = require('sqlite3').verbose();
-var catpath = os.homedir()+'/Pictures/Lightroom/Lightroom\ Catalog.lrcat';
+var sqlite3 = require('sqlite3');
 var child_process     = require('child_process');
 // var SmartCrop = require('smartcrop-node');
-var db = new sqlite3.Database(catpath, 'OPEN_READONLY');
 
-var userArgs = process.argv.slice(2);
+var argv = require('yargs')
+	.usage('Usage: $0 [options] [tags]')
+	.option('c', {
+	        alias: 'catalog',
+	        default: os.homedir()+'/Pictures/Lightroom/Lightroom\ Catalog.lrcat',
+	        defaultDescription: '$HOME/Pictures/Lightroom/Lightroom\ Catalog.lrcat',
+	        describe: 'Absolute path to the Lightroom Catalog you want to use.  Useful for catalogs on external drives.',
+	        type: 'string'
+	    })
+	.option('s', {
+	        alias: 'size',
+	        default: 500,
+	        describe: 'Maximum longest edge in pixels',
+	        type: 'string'
+	    })
+	.option('u', {
+	        alias: 'ubersicht',
+	        boolean: true,
+	        describe: false
+	    })
+	.demand(1, 'Please include a keyword!')
+  .showHelpOnFail(false)
+	.help('h')
+	.alias('h', 'help')
+	.argv
+;
 
-async.each(userArgs, function(tag){
+var db = new sqlite3.Database(argv.c, 'OPEN_READONLY');
+
+async.each(argv._, function(tag){
 	getFile(tag);
 }, function(err){
 	if( err ) {
@@ -96,13 +121,23 @@ function getFile(tag) {
 	}
 
 	function convertImage(cb) {
-			child_process.exec(['convert -units PixelsPerInch ' + filename + ' -colorspace sRGB -density 72 -format JPG -quality 80 -resize 500x500 -auto-orient "' + process.cwd()+'/'+tag+'-latest.jpg"'], function(err) {
+		if (argv.u) {
+			child_process.exec(['/usr/local/bin/convert -units PixelsPerInch ' + filename + ' -colorspace sRGB -density 72 -format JPG -quality 80 -resize '+argv.s+'x'+argv.s+' -auto-orient "' + process.cwd()+'/lightroom-latest.widget/'+tag+'-latest.jpg"'], function(err) {
 		      if (err instanceof Error) {
 		        console.log(err);
 		        process.exit(1);
 		      }
 		      cb();
 		    });
+		} else {
+			child_process.exec(['convert -units PixelsPerInch ' + filename + ' -colorspace sRGB -density 72 -format JPG -quality 80 -resize '+argv.s+'x'+argv.s+' -auto-orient "' + process.cwd()+'/'+tag+'-latest.jpg"'], function(err) {
+		      if (err instanceof Error) {
+		        console.log(err);
+		        process.exit(1);
+		      }
+		      cb();
+		    });
+		}
 	}
 
 	function cropImage(cb) {
@@ -118,7 +153,11 @@ function getFile(tag) {
 	}
 
 	function finish(err, results){
-		      console.log(tag+' Done.');
+		if (argv.u) {
+			console.log('./lightroom-latest.widget/'+ tag +'-latest.jpg,');
+		} else {
+      console.log(tag+' Done.');
+    }
 	}
 
 };
