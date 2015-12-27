@@ -1,7 +1,8 @@
 #!/usr/bin/env node
+var os = require('os');
 var async    = require('async');
 var sqlite3 = require('sqlite3').verbose();
-var catpath = '/Users/username/Pictures/Lightroom/Lightroom\ Catalog.lrcat';
+var catpath = os.homedir()+'/Pictures/Lightroom/Lightroom\ Catalog.lrcat';
 var child_process     = require('child_process');
 // var SmartCrop = require('smartcrop-node');
 var db = new sqlite3.Database(catpath, 'OPEN_READONLY');
@@ -19,7 +20,7 @@ async.each(userArgs, function(tag){
 function getFile(tag) {
 	var absolutePath, pathFromRoot, baseName, extension, filename;
 	var tasks = [
-		fileAbsolutePath, filePathFromRoot, fileBaseName, fileExtension, buildFilename, /*convertImage, */ cropImage
+		fileAbsolutePath, filePathFromRoot, fileBaseName, fileExtension, buildFilename, convertImage, /*cropImage*/
 	];
 
 	// Each function below is executed in order
@@ -95,7 +96,7 @@ function getFile(tag) {
 	}
 
 	function convertImage(cb) {
-			child_process(['convert -units PixelsPerInch ' + filename + ' -colorspace sRGB -density 72 -format JPG -quality 80 -resize 500x500 -auto-orient "' + process.cwd()+'/'+tag+'-latest.jpg"'], function(err) {
+			child_process.exec(['convert -units PixelsPerInch ' + filename + ' -colorspace sRGB -density 72 -format JPG -quality 80 -resize 500x500 -auto-orient "' + process.cwd()+'/'+tag+'-latest.jpg"'], function(err) {
 		      if (err instanceof Error) {
 		        console.log(err);
 		        process.exit(1);
