@@ -1,6 +1,6 @@
 {
   "name": "lr-latest",
-  "version": "0.3.0",
+  "version": "1.0.0",
   "description": "utility to pull latest tagged photos from a lightroom catalog",
   "repository": {
     "type": "git",
